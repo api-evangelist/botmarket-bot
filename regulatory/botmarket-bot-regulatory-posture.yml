@@ -1,0 +1,33 @@
+generated: '2026-09-19'
+method: searched
+probe: true
+source: https://botmarket.bot/about
+signals: {}
+probed:
+- {url: 'https://botmarket.bot/accessibility', status: 200, note: 'SvelteKit SPA catch-all shell (2,802 bytes, identical to every unknown path) — no conformance report'}
+- {url: 'https://botmarket.bot/legal/subprocessors', status: 200, note: SPA shell}
+- {url: 'https://botmarket.bot/legal/dpa', status: 200, note: SPA shell}
+- {url: 'https://botmarket.bot/privacy', status: 200, note: SPA shell — no privacy policy exists}
+- {url: 'https://botmarket.bot/privacy/requests', status: 200, note: SPA shell}
+- {url: 'https://botmarket.bot/terms', status: 200, note: SPA shell — no terms exist}
+- {url: 'https://botmarket.bot/transparency', status: 200, note: SPA shell}
+- {url: 'https://botmarket.bot/trust', status: 200, note: SPA shell}
+- {url: 'https://botmarket.bot/security', status: 200, note: SPA shell}
+- {url: 'https://botmarket.bot/about', status: 200, note: 'Real page. States the directory is non-profit, re-gathers public catalogs, credits sources, is "rate-limited but never paywalled" and "Discoverable via .well-known/*, llms.txt, opensearch.xml". No regulatory substance.'}
+- {url: 'https://botmarket.bot/sources', status: 200, note: 'Real page. "If you run one of these catalogs, or you own a record and want it corrected or removed, reach out through koalabs.ai or send a fix via Submit." A record-removal channel for catalog data, not a data-subject-rights statement; no rights, no SLA, no controller identity.'}
+- {url: 'https://koalabs.ai/privacy', status: 404}
+- {url: 'https://koalabs.ai/terms', status: 404}
+- {url: 'https://koalabs.ai/security', status: 404}
+- {url: 'https://koalabs.ai/accessibility', status: 404}
+- {url: 'https://koalabs.ai/legal/subprocessors', status: 404}
+- {url: 'https://botmarket.bot/.well-known/security.txt', status: 404}
+note: >-
+  No published regulatory-posture signal was found on botmarket.bot or koalabs.ai: no privacy policy, no
+  terms, no DPA, no subprocessor list, no accessibility conformance report, no transparency report, no SBOM,
+  no support-lifetime statement, no data-residency statement, no AI-transparency statement beyond the
+  studio's marketing copy about building with AI agents (which is not a disclosure to users of this product).
+  The homepage's "no tracking" claim is a marketing statement, not a GPC or privacy commitment, and is not
+  recorded as one. The Sources page's removal channel is recorded in conventions/ under reversibility, not
+  here, because it concerns catalog records rather than personal data. An empty signals: {} is the
+  measurement; no regulatory pointer is emitted. Which regimes reach a Mexico City non-profit directory is
+  decided by the Kin Score regime map, not here.

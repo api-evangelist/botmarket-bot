@@ -1,0 +1,136 @@
+generated: '2026-09-19'
+method: probed
+status: published
+source: https://botmarket.bot/mcp
+docs: https://botmarket.bot/llms.txt
+summary: >-
+  KOA Labs operates ONE remote MCP server for BotMarket at https://botmarket.bot/mcp — the same host as the
+  website, the REST base (/v1) and the agent card. It is POST-only JSON-RPC 2.0 over HTTP (a GET returns 405
+  with Allow: POST and {"detail":"Method Not Allowed"}), speaks MCP protocol version 2025-06-18, identifies
+  itself as serverInfo {name: botmarket, version: 3.0.0}, and answers initialize, tools/list and tools/call
+  anonymously. tools/list returned six tools, each carrying a real JSON-Schema inputSchema (saved verbatim to
+  mcp/botmarket-bot-mcp-tools.json). resources/list and prompts/list return -32601 Method not found; an
+  unknown tool name returns -32601 "Tool not found"; malformed JSON returns -32700 Parse error — all over HTTP
+  200. The server publishes its own discovery document at /.well-known/mcp/server-card.json (transport
+  json-rpc-http, auth none, the same six tool names and the same 10/100/1000 rate limits). Authorship is
+  knowable from the anonymous tools/list: the tool set (search_mcps, search_agents, search_protocols,
+  get_x402_services, list_quests, get_stats) is BotMarket-specific and matches no shared platform fingerprint
+  — a provider-built server, not a Wix/Shopify/Mintlify/WordPress-plugin surface.
+deployment:
+  mode: remote
+  endpoint: https://botmarket.bot/mcp
+  auth: none
+  verified: probed
+  note: >-
+    A hosted HTTPS endpoint an MCP client POSTs to directly. No stdio package exists: npm, PyPI, crates.io,
+    RubyGems and the official MCP registry (registry.modelcontextprotocol.io) all return nothing for
+    "botmarket", and llms.txt documents only the URL. auth is genuinely none — initialize, tools/list and
+    tools/call (get_stats) all succeeded with no credential, the server card says "auth":"none", ai-plugin.json
+    says auth type none, and no OAuth metadata is served on the host (/.well-known/oauth-authorization-server
+    and /.well-known/oauth-protected-resource both 404). Every response carries x-payment-optional: x402,mtp and
+    x-tip-url: https://botmarket.bot/payments — tipping is optional and no 402 was ever returned.
+servers:
+- id: botmarket
+  name: botmarket
+  endpoint: https://botmarket.bot/mcp
+  transport: streamable-http
+  http_methods: [POST]
+  auth: none
+  payment: optional tipping via x402 / MTP (x-payment-optional response header); no call returned 402
+  rate_limit: 10 requests/second, 100/minute, 1000/hour per IP (x-ratelimit-limit-second/-minute/-hour headers)
+  status: live
+  probe:
+    fetched: '2026-09-19'
+    initialize:
+      http_status: 200
+      protocol_version: '2025-06-18'
+      server_info: {name: botmarket, version: 3.0.0}
+      capabilities: {tools: {listChanged: false}}
+    tools_list:
+      http_status: 200
+      content_type: application/json
+      tool_count: 6
+      file: mcp/botmarket-bot-mcp-tools.json
+    tools_call:
+      tool: get_stats
+      http_status: 200
+      structured_content: '{"agents":3615,"mcps":115065,"tools":6011,"frameworks":45,"protocols":25,"skills":2879,"x402_services":15610}'
+      note: A free, read-only tool invoked once to confirm tools/call works end to end. Nothing was submitted or changed.
+    resources_list: {http_status: 200, error: '-32601 Method not found: resources/list'}
+    prompts_list: {http_status: 200, error: '-32601 Method not found: prompts/list'}
+    unknown_method: {http_status: 200, error: '-32601 Method not found: apievangelist/nonexistent'}
+    unknown_tool: {http_status: 200, error: '-32601 Tool not found: apievangelist_nonexistent'}
+    parse_error: {http_status: 200, error: '-32700 Parse error'}
+    get_request: {http_status: 405, allow: POST, body: '{"detail":"Method Not Allowed"}'}
+  server_card:
+    url: https://botmarket.bot/.well-known/mcp/server-card.json
+    http_status: 200
+    file: well-known/botmarket-bot-mcp-server-card.json
+    note: Non-standard path (not RFC 9728, not a registered well-known); a provider-authored MCP discovery document that agrees with the live server on name, version, endpoint, auth and tool names.
+  authorship: provider
+  tools:
+  - name: search_mcps
+    read_only: true
+    cost: free
+    input_schema:
+      query: string (optional) — free-text query
+      category: string (optional) — category filter
+      limit: integer (optional, default 20, max 100)
+    rest_equivalent: GET https://botmarket.bot/v1/mcps?q=<query>  (documented in llms.txt; no OpenAPI)
+    description: >-
+      Search the BotMarket catalog of MCP servers. Returns name, description, category, GitHub URL, install
+      command, and stars. Use to discover MCPs for a given capability or client (e.g. 'github', 'postgres',
+      'cursor').
+  - name: search_agents
+    read_only: true
+    cost: free
+    input_schema:
+      query: string (optional)
+      category: string (optional)
+      limit: integer (optional, default 20, max 100)
+    rest_equivalent: GET https://botmarket.bot/v1/agents  (documented in llms.txt; no OpenAPI)
+    description: Search the BotMarket catalog of A2A-compatible AI agents. Each agent is self-describing via .well-known/agent-card.json.
+  - name: search_protocols
+    read_only: true
+    cost: free
+    input_schema:
+      kind: 'string enum [payments, agents, context, discovery, identity] (optional)'
+      query: string (optional)
+    rest_equivalent: GET https://botmarket.bot/v1/protocols  (documented in llms.txt; no OpenAPI)
+    description: >-
+      List protocols tracked by BotMarket: MCP, A2A, x402, MTP (Machine Tree Protocol), MRP, L402, AP2, ACP,
+      ANP, AGNTCY, etc. Filter by kind: payments | agents | context | discovery | identity.
+  - name: get_x402_services
+    read_only: true
+    cost: free
+    input_schema:
+      category: string (optional)
+      query: string (optional) — free-text query
+      limit: integer (optional, default 50, max 200)
+    rest_equivalent: null — the /payments page reads a services list, but llms.txt documents no /v1 path for it
+    description: List services accepting agent-native payments (x402, MTP, MRP, L402).
+  - name: list_quests
+    read_only: true
+    cost: free
+    input_schema:
+      status: 'string enum [active, paused, ended] (optional, default active)'
+    rest_equivalent: GET https://botmarket.bot/v1/quests  (documented in llms.txt; no OpenAPI)
+    description: List BotMarket quests. Each quest pays USDC for completing a verifiable task (e.g. replicate a ceiba node, submit a verified MCP).
+    note: >-
+      The tool description says quests pay USDC; the live /v1/quests data (reward_amount 0, "Experimental
+      quest — no rewards yet") and llms.txt ("no payouts yet") say otherwise. The description is stale.
+  - name: get_stats
+    read_only: true
+    cost: free
+    input_schema: {}
+    rest_equivalent: null — llms.txt documents no stats path; /v1/health/summary is a different (agent-health) rollup
+    description: Get global BotMarket stats (counts of agents, MCPs, protocols, etc).
+  not_exposed_via_mcp:
+  - POST /v1/submit (submit an agent card / MCP server / x402 service listing, with dry_run) — REST only
+  - GET /v1/skills, /v1/rankings, /v1/health/summary, /v1/service/{slug}, /v1/search/suggest — REST only
+tool_crosswalk: >-
+  Not emitted. A crosswalk binds MCP tools to OpenAPI operationIds and BotMarket publishes no OpenAPI (the
+  /openapi.json both llms.txt and ai-plugin.json advertise returns a 0-byte 404). The per-tool rest_equivalent
+  fields above record the documented /v1 path each tool shadows, from llms.txt, without inventing operationIds.
+web_mcp: null
+clients_documented: [Cursor, Claude Desktop, Cline, Continue, Windsurf, Zed, VS Code (Copilot agent mode), LibreChat, OpenWebUI]

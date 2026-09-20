@@ -1,0 +1,149 @@
+generated: '2026-09-19'
+method: searched
+source: https://botmarket.bot/llms.txt
+derived_from: null
+docs:
+- https://botmarket.bot/llms.txt
+- https://botmarket.bot/sources
+- https://botmarket.bot/opensearch.xml
+base_url: https://botmarket.bot/v1
+media_type: application/json
+api_style: >-
+  REST over HTTPS with JSON responses on /v1 (a FastAPI-shaped backend behind Caddy and Cloudflare), plus
+  JSON-RPC 2.0 over HTTP on /mcp. No OpenAPI is published — the /openapi.json that llms.txt and
+  ai-plugin.json advertise returns a 0-byte 404 — so everything below comes from the provider's text and
+  from live, read-only responses.
+auth:
+  style: none — anonymous, per-IP rate limited; no token, no signup
+  detail: authentication/botmarket-bot-authentication.yml
+idempotency:
+  supported: false
+  coverage: none
+  mechanism: null
+  header: null
+  scope: []
+  retention: undocumented
+  description: >-
+    The surface has exactly one mutating operation, POST /v1/submit, and no idempotency key, header or
+    parameter is documented for it. llms.txt says a submission "opens a registry PR (or queues for manual
+    review)", so a retried submit could open a second PR; the provider documents no de-duplication and no
+    safe-retry guidance. Every other documented operation is a GET (and MCP tools/call on six read-only tools),
+    which are idempotent by nature but not by any declared mechanism.
+  gaps:
+  - No Idempotency-Key on POST /v1/submit, the only write.
+  - No documented behaviour for a duplicate submission of the same URL.
+dry_run_mode:
+  supported: true
+  status: documented
+  mechanism: request body flag
+  surfaces:
+  - operation: 'POST /v1/submit with {"dry_run": true}'
+    docs: https://botmarket.bot/llms.txt
+    cost: free
+    description: >-
+      Quoted from llms.txt: "dry_run=true validates and returns the parsed preview without opening a PR or
+      queueing; without it the submission opens a registry PR (or queues for manual review)." kind is one of
+      agent | mcp | service. The /submit page describes the same flow as "Validated instantly; listed after
+      review" with a "Fetch & preview" step. Not invoked by this pass (GET /v1/submit answered 405 Allow: POST,
+      confirming the route and method).
+reversibility:
+  grade: documented
+  docs: https://botmarket.bot/sources
+  note: >-
+    A reversal path exists for the one write and is stated on the Sources page, but no window is stated, so
+    the grade is documented (0.4), not verified. No API operation performs the removal — it is a human
+    channel — and nothing below asserts a window the provider has not written down.
+  write_surfaces:
+  - operation: POST /v1/submit (kind agent | mcp | service)
+    action: Submit a listing; without dry_run this opens a registry pull request or queues the record for manual review
+    reversal: correction or removal on request, by contacting KOA Labs or filing a fix through Submit
+    reversal_operation: null
+    window: null
+    stated_terms:
+    - source: https://botmarket.bot/sources
+      verbatim: 'If you run one of these catalogs, or you own a record and want it corrected or removed, reach out through koalabs.ai or send a fix via Submit.'
+    - source: https://botmarket.bot/llms.txt
+      verbatim: 'dry_run=true validates and returns the parsed preview without opening a PR or queueing'
+    grade: documented
+    note: >-
+      The removal statement is written for records BotMarket gathers from other catalogs as much as for
+      records submitted directly; it is the only reversal language on the site. The dry_run flag is a rehearsal
+      (dry-run), not a reversal, and is recorded under dry_run_mode.
+  read_surfaces_note: >-
+    GET /v1/mcps, /v1/agents, /v1/protocols, /v1/quests, /v1/skills, /v1/rankings, /v1/health/summary,
+    /v1/service/{slug}, /v1/search, /v1/search/suggest and all six MCP tools are read-only; reversibility is
+    not applicable to them.
+pagination:
+  style: limit-only
+  request_params:
+    limit: 'integer (observed on /v1/mcps and /v1/search; MCP tools declare default 20, max 100 — get_x402_services default 50, max 200)'
+    q: free-text query (documented in llms.txt for /v1/mcps and /v1/search/suggest; the OpenSearch template uses /v1/search?q=)
+  response_fields:
+    note: >-
+      /v1/mcps, /v1/agents, /v1/quests return a bare JSON array (no envelope, no total, no cursor);
+      /v1/search returns an object keyed by kind ({"mcps": [...], ...}); /v1/search/suggest returns
+      {"suggestions": [{label, href, type}]}. No cursor, offset or next-page field was observed and none is
+      documented.
+  docs: https://botmarket.bot/llms.txt
+field_expansion:
+  supported: false
+  note: Not documented; not observed.
+metadata:
+  supported: false
+request_tracing:
+  request_id_header: null
+  note: >-
+    No request-id header is returned. Responses do carry cf-ray (Cloudflare's edge id) and "via: 1.1 Caddy",
+    which are infrastructure identifiers rather than an API request id.
+versioning:
+  scheme: uri-path
+  current: v1
+  mechanism: /v1 prefix on the REST base; the MCP server reports version 3.0.0 in serverInfo and in its server card
+  detail: lifecycle/botmarket-bot-lifecycle.yml
+  docs: https://botmarket.bot/llms.txt
+error_envelope:
+  rest:
+    media_type: application/json
+    shape: '{"detail": <string | array>}'
+    observed:
+    - {status: 404, body: '{"detail":"Not Found"}', url: 'GET https://botmarket.bot/.well-known/security.txt'}
+    - {status: 404, body: '{"detail":"Service not found"}', url: 'GET https://botmarket.bot/v1/service/apievangelist-nonexistent-probe'}
+    - {status: 405, body: '{"detail":"Method Not Allowed"}', url: 'GET https://botmarket.bot/v1/submit', headers: 'allow: POST'}
+    - {status: 422, body: '{"detail":[{"type":"int_parsing","loc":["query","limit"],"msg":"Input should be a valid integer, unable to parse string as an integer","input":"abc"}]}', url: 'GET https://botmarket.bot/v1/mcps?limit=abc'}
+    note: Not RFC 9457 — no type URI, title, status or instance fields. The 422 body is the FastAPI/Pydantic validation shape.
+  mcp:
+    media_type: application/json
+    shape: JSON-RPC 2.0 error object over HTTP 200
+    observed:
+    - {code: -32601, message: 'Method not found: resources/list'}
+    - {code: -32601, message: 'Tool not found: apievangelist_nonexistent'}
+    - {code: -32700, message: Parse error}
+  detail: errors/botmarket-bot-problem-types.yml
+rate_limit_signaling:
+  headers: [x-ratelimit-limit-second, x-ratelimit-limit-minute, x-ratelimit-limit-hour]
+  values: '10 / 100 / 1000 per IP'
+  remaining_or_reset_headers: none
+  exhaustion_status: undocumented
+  detail: rate-limits/botmarket-bot-rate-limits.yml
+payment_signaling:
+  headers: ['x-payment-optional: x402,mtp', 'x-tip-url: https://botmarket.bot/payments']
+  note: Optional tipping advertised on every response; no 402 was returned.
+cors:
+  access_control_allow_origin: '*'
+  access_control_allow_methods: 'GET, POST, HEAD, OPTIONS'
+  access_control_max_age: 600
+  observed: OPTIONS https://botmarket.bot/v1/mcps with an Origin header, 2026-09-19
+  note: Browser and in-page agents can call the API cross-origin without a proxy.
+caching:
+  cache_control: 'public, max-age=60'
+  observed_on: /v1/* and /mcp responses
+  note: The catalog is "mirrored hourly" (homepage) and responses are cacheable for 60 seconds.
+discovery:
+  llms_txt: https://botmarket.bot/llms.txt
+  agent_card: https://botmarket.bot/.well-known/agent-card.json
+  mcp_server_card: https://botmarket.bot/.well-known/mcp/server-card.json
+  ai_plugin: https://botmarket.bot/.well-known/ai-plugin.json
+  opensearch: https://botmarket.bot/opensearch.xml
+  robots: 'https://botmarket.bot/robots.txt — Allow: / for every agent, GPTBot, ClaudeBot, anthropic-ai, PerplexityBot and Google-Extended named'
+  openapi: 'https://botmarket.bot/openapi.json — advertised, returns 404 (0 bytes)'
+  swagger_ui: 'https://botmarket.bot/docs-api — advertised, returns the SPA shell'

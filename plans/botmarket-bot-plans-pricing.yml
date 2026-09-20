@@ -1,0 +1,36 @@
+generated: '2026-09-19'
+method: searched
+source: https://botmarket.bot/llms.txt
+docs:
+- https://botmarket.bot/
+- https://botmarket.bot/about
+- https://botmarket.bot/payments
+plan_count: 1
+currency: null
+model: free, no signup, no token; optional tipping in USDC via x402 / MTP
+summary: >-
+  BotMarket publishes no tiers and no prices. The whole surface — REST /v1, MCP /mcp, submissions — is free
+  and anonymous: "Free for bots. No signup." (llms.txt), "Free for bots — no signup, no tracking, no paywalls"
+  and "free forever" (homepage), "a non-profit directory by KOA Labs" (footer), "rate-limited but never
+  paywalled" (about page). The only money on the surface is an optional tip: every response carries
+  x-payment-optional: x402,mtp and x-tip-url: https://botmarket.bot/payments, and koalabs.ai describes the
+  project as "Free; tipping over x402 / MTP". No /pricing page exists (the path returns the SPA shell), so no
+  Pricing pointer is emitted. Quests are explicitly unpaid for now ("Experimental — no payouts yet").
+plans:
+- id: free
+  name: Free (anonymous)
+  price: 0
+  currency: null
+  period: null
+  included: Unlimited use of the REST /v1 read surface, the MCP server and POST /v1/submit, within the per-IP rate limit
+  limits: ['10 requests/second per IP', '100 requests/minute per IP', '1000 requests/hour per IP']
+  signup: none
+  token: none
+  overage: null
+  source: https://botmarket.bot/llms.txt — "Free for bots. No signup." / "10 req/sec, 100/min, 1000/hour per IP. Free. No token required."
+tipping:
+  optional: true
+  protocols: [x402, MTP (Machine Tree Protocol)]
+  header: 'x-payment-optional: x402,mtp'
+  url: https://botmarket.bot/payments
+  note: Advertised in response headers and on koalabs.ai; no 402 challenge was ever returned and no price is stated anywhere for a tip.

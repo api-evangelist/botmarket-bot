@@ -1,0 +1,1 @@
+{"schemaVersion":"0.3","name":"BotMarket","description":"AI agent + MCP marketplace. Free, open, bot-friendly.","url":"https://botmarket.bot","provider":{"name":"KOA Labs","url":"https://koalabs.ai"},"capabilities":["search","directory","quests","mcp-server"],"endpoints":{"rest":"https://botmarket.bot/v1","mcp":"https://botmarket.bot/mcp"}}

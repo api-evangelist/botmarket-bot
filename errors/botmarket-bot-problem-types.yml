@@ -1,0 +1,81 @@
+generated: '2026-09-19'
+method: probed
+format: none
+source: live read-only responses from https://botmarket.bot/v1 and https://botmarket.bot/mcp, 2026-09-19
+docs:
+- https://botmarket.bot/llms.txt
+summary: >-
+  BotMarket publishes no error reference and no OpenAPI, so this catalog is built only from error responses
+  observed on read-only probes. The REST surface returns a FastAPI-shaped {"detail": ...} envelope — a string
+  for 404/405 and a Pydantic validation array for 422. The MCP surface returns JSON-RPC 2.0 error objects over
+  HTTP 200. Neither is RFC 9457. No 401/403 exists (the surface is anonymous), no 429 was observed (the
+  published limits were respected), and no 402 was returned although every response advertises optional
+  x402/MTP tipping.
+envelope:
+  rest:
+    media_type: application/json
+    shape: '{"detail": <string | array of {type, loc, msg, input}>}'
+    note: Not RFC 9457 — no type URI, title, status or instance fields.
+  mcp:
+    media_type: application/json
+    shape: '{"jsonrpc":"2.0","id":<id|null>,"error":{"code":<int>,"message":<string>}}'
+    http_status_always: 200
+problem_types:
+- status: 404
+  title: Not Found (unrouted path)
+  surface: rest
+  body: '{"detail":"Not Found"}'
+  observed_on: [GET /.well-known/security.txt, GET /.well-known/agent.json, GET /v1/, GET /v1/openapi.json, GET /v1/apievangelist-negative-control]
+  remediation: The path is not part of the API. Note that unknown paths WITHOUT a /v1 or /.well-known prefix fall through to the SvelteKit SPA and return 200 text/html instead.
+- status: 404
+  title: Service not found
+  surface: rest
+  body: '{"detail":"Service not found"}'
+  observed_on: [GET /v1/service/apievangelist-nonexistent-probe]
+  remediation: The slug does not exist; find valid slugs via GET /v1/mcps, /v1/agents or /v1/search/suggest.
+- status: 404
+  title: Not Found (openapi.json)
+  surface: rest
+  body: '' 
+  bytes: 0
+  observed_on: [GET /openapi.json, GET /docs, GET /redoc]
+  note: A bare 404 with an empty body from the edge, distinct from the JSON 404 above; recorded because llms.txt and ai-plugin.json advertise this URL.
+- status: 405
+  title: Method Not Allowed
+  surface: rest
+  body: '{"detail":"Method Not Allowed"}'
+  headers: {allow: POST}
+  observed_on: [GET /v1/submit, GET /mcp]
+  remediation: /v1/submit and /mcp accept POST only; the Allow header names the method.
+- status: 422
+  title: Unprocessable Entity (validation error)
+  surface: rest
+  body: '{"detail":[{"type":"int_parsing","loc":["query","limit"],"msg":"Input should be a valid integer, unable to parse string as an integer","input":"abc"}]}'
+  observed_on: ['GET /v1/mcps?limit=abc']
+  remediation: Each detail[] entry names the parameter location (loc), the failure type and the offending input; fix the named field.
+- status: 200
+  json_rpc_code: -32700
+  title: Parse error
+  surface: mcp
+  body: '{"jsonrpc":"2.0","id":null,"error":{"code":-32700,"message":"Parse error"}}'
+  observed_on: ['POST /mcp with a malformed JSON body']
+- status: 200
+  json_rpc_code: -32601
+  title: Method not found
+  surface: mcp
+  body: '{"jsonrpc":"2.0","id":4,"error":{"code":-32601,"message":"Method not found: resources/list"}}'
+  observed_on: ['POST /mcp resources/list', 'POST /mcp prompts/list', 'POST /mcp apievangelist/nonexistent']
+  remediation: Only initialize, tools/list and tools/call are implemented.
+- status: 200
+  json_rpc_code: -32601
+  title: Tool not found
+  surface: mcp
+  body: '{"jsonrpc":"2.0","id":6,"error":{"code":-32601,"message":"Tool not found: apievangelist_nonexistent"}}'
+  observed_on: ['POST /mcp tools/call with an unknown tool name']
+  note: The server reuses -32601 (Method not found) for an unknown tool rather than the MCP-conventional -32602 Invalid params.
+  remediation: Call tools/list and use one of the six returned names.
+not_observed:
+- {status: 401, note: The surface is anonymous; no credential exists to fail.}
+- {status: 402, note: 'x-payment-optional: x402,mtp is advertised on every response but no call returned a payment challenge.'}
+- {status: 429, note: Published per-IP limits (10/s, 100/min, 1000/h) were respected; the exhaustion body and headers are undocumented.}
+- {status: 525, note: 'Cloudflare 525 (origin SSL handshake failed) on every www.botmarket.bot path — an edge/TLS defect on the www alias, not an API error.'}

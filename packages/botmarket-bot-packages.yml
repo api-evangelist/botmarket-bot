@@ -1,0 +1,23 @@
+generated: '2026-09-19'
+method: searched
+source: registry searches 2026-09-19
+package_count: 0
+packages: []
+searched:
+- {registry: npm, query: 'https://registry.npmjs.org/-/v1/search?text=botmarket', result: 0 packages}
+- {registry: npm, query: 'https://registry.npmjs.org/-/v1/search?text=koalabs', result: 0 packages}
+- {registry: pypi, query: 'https://pypi.org/pypi/botmarket/json', status: 404}
+- {registry: pypi, query: 'https://pypi.org/pypi/botmarket-bot/json', status: 404}
+- {registry: pypi, query: 'https://pypi.org/pypi/koalabs/json', status: 404}
+- {registry: crates.io, query: 'https://crates.io/api/v1/crates?q=botmarket', result: 0 crates}
+- {registry: rubygems, query: 'https://rubygems.org/api/v1/gems/botmarket.json', status: 404}
+- {registry: mcp-registry, query: 'https://registry.modelcontextprotocol.io/v0/servers?search=botmarket', result: 0 servers}
+- {registry: github-org, query: 'https://api.github.com/orgs/koalabs-ai/repos', result: '1 repository (ceiba-template, a ceiba.to community-node starter) — no BotMarket client, SDK or CLI'}
+- {registry: github-org, query: 'https://api.github.com/orgs/koa-labs/repos', result: 'the org the botmarket.bot footer links to: 2 sample repos (product-fe, product-be) last pushed 2020-01-23, org created 2020-01-30 — NOT this provider (KOA Labs was founded in 2026 and its own site links github.com/koalabs-ai); not linked'}
+- {registry: github-search, query: 'https://api.github.com/search/repositories?q=botmarket+in:name,description', result: '63 repositories, none by KOA Labs; all are unrelated Telegram/marketplace projects that share the word'}
+note: >-
+  BotMarket publishes no client library, SDK or CLI in any registry searched, and llms.txt documents none —
+  the documented ways in are raw HTTP against /v1, the MCP server at /mcp, and any MCP-compliant client
+  (Cursor, Claude Desktop, Cline, Continue, Windsurf, Zed, VS Code, LibreChat, OpenWebUI). KOA Labs' koa-cli
+  (koalabs.ai/koa-cli.html) is the studio's own terminal coding agent and does not mention BotMarket; it is
+  not a BotMarket client. No Packages or SDKs pointer is emitted.

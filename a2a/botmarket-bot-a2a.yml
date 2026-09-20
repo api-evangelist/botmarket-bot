@@ -1,0 +1,146 @@
+generated: '2026-09-19'
+method: probed
+source: https://botmarket.bot/.well-known/agent-card.json
+card:
+  file: a2a/botmarket-bot-agent-card.json
+discovery:
+  path: /.well-known/agent-card.json
+  canonical: true
+  host: botmarket.bot
+  note: >-
+    Served from the apex host botmarket.bot, which is also the REST base (https://botmarket.bot/v1) and the
+    MCP server host (https://botmarket.bot/mcp) — one Caddy origin behind Cloudflare. The legacy
+    /.well-known/agent.json returns the backend's real JSON 404 ({"detail":"Not Found"}, 22 bytes,
+    application/json), not an SPA shell, and a negative-control path
+    (/.well-known/apievangelist-negative-control-7f3a9c.json) also 404s, so the 200 on agent-card.json is a
+    served document and not a catch-all. www.botmarket.bot cannot serve anything: Cloudflare answers 525
+    (origin SSL handshake failed) for every path. Ownership is not in question: the card's provider block is
+    {name: "KOA Labs", url: "https://koalabs.ai"}, and koalabs.ai lists BotMarket as one of its own live
+    projects ("Marketplace and registry for AI agents ... botmarket.bot"); llms.txt on the same host says
+    "built by KOA Labs" and the footer says "a non-profit directory by KOA Labs".
+x-evidence:
+  fetched: '2026-09-19'
+  url: https://botmarket.bot/.well-known/agent-card.json
+  http_status: 200
+  content_type: application/json
+  body_bytes: 342
+  body_parses_as: >-
+    JSON object with a partial AgentCard shape — 3 of the 6 discriminator fields present (name, url,
+    capabilities); version, protocolVersion and skills are absent. It also carries schemaVersion "0.3",
+    provider and a non-standard endpoints object.
+  corroborating_probes:
+  - url: https://botmarket.bot/.well-known/agent.json
+    http_status: 404
+    note: Legacy pre-0.3 path; real JSON 404 from the backend.
+  - url: https://www.botmarket.bot/.well-known/agent-card.json
+    http_status: 525
+    note: Cloudflare 525 — origin SSL handshake failed on the www host for every path, including /.
+  - url: https://koalabs.ai/.well-known/agent-card.json
+    http_status: 404
+    note: The provider's own corporate host serves no card; the card lives only on the product host.
+  - url: https://botmarket.bot/.well-known/mcp/server-card.json
+    http_status: 200
+    note: >-
+      A sibling discovery document for the MCP server the agent card's endpoints.mcp names (saved verbatim
+      as well-known/botmarket-bot-mcp-server-card.json).
+  - url: https://botmarket.bot/mcp
+    method: POST
+    body: '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+    http_status: 200
+    note: >-
+      The card's endpoints.mcp is a live MCP server (6 tools with inputSchema, see mcp/botmarket-bot-mcp.yml).
+      The card declares NO A2A JSON-RPC endpoint — endpoints carries only rest and mcp — so there was no A2A
+      method to exercise; message/send was not attempted against any URL because the card names none.
+  - url: https://a2aregistry.org
+    note: >-
+      The card was first seen as one of 415 agents listed on a2aregistry.org (fetched 2026-09-19, author
+      "KOA Labs"), which is how this provider entered the harvest backlog. The registry listing was the lead;
+      the card above was fetched directly from the provider's host.
+agent_card:
+  name: BotMarket
+  description: AI agent + MCP marketplace. Free, open, bot-friendly.
+  url: https://botmarket.bot
+  version: null
+  protocol_version: null
+  preferred_transport: null
+  schema_version: '0.3'
+  provider:
+    organization: KOA Labs
+    url: https://koalabs.ai
+  capabilities:
+    observed_type: array
+    values: [search, directory, quests, mcp-server]
+  endpoints:
+    rest: https://botmarket.bot/v1
+    mcp: https://botmarket.bot/mcp
+  default_input_modes: null
+  default_output_modes: null
+  security_schemes: null
+  security: null
+  documentation_url: null
+  icon_url: null
+  skill_count: 0
+  skills: null
+  note: >-
+    The card's url is the website root, not an A2A endpoint, and the card names no A2A JSON-RPC URL at all.
+    What it publishes is a discovery manifest that points an agent at a REST base and an MCP server. The
+    "skills" the site advertises (https://botmarket.bot/skills, /v1/skills) are the skills of the 3,615
+    THIRD-PARTY agents BotMarket indexes, not skills of BotMarket itself, and none are declared in the card.
+conformance:
+  spec: A2A 1.0.0
+  grade: flavored
+  protocol_version: null
+  preferred_transport: null
+  hard_checks:
+    capabilities_is_object: false
+    protocol_version_present: false
+    skills_is_array: false
+  optional_fields:
+    default_input_modes: false
+    default_output_modes: false
+    preferred_transport: false
+  grade_basis: >-
+    Graded against the A2A 1.0.0 hard checks and fails all three. capabilities is an ARRAY of four strings
+    (["search","directory","quests","mcp-server"]) where the spec defines an AgentCapabilities OBJECT
+    (streaming, pushNotifications, stateTransitionHistory, extensions). protocolVersion is absent; the card
+    instead carries a non-A2A field schemaVersion "0.3". skills is absent entirely — no array, empty or
+    otherwise — and version is absent. It is served at the canonical path with the right content type and is
+    plainly this provider's own document, but a reader written against A2A 0.3.0 or 1.0.0 cannot discover a
+    transport, an endpoint, an input mode or a single skill from it. Recorded as flavored: present, owned,
+    not conformant.
+  deviations:
+  - field: capabilities
+    observed: array of strings
+    expected: AgentCapabilities object
+    note: The single most common flavoring defect in the catalog; here the array is a feature list, not a capabilities declaration.
+  - field: protocolVersion
+    observed: absent (schemaVersion "0.3" in its place)
+    expected: string, e.g. "0.3.0"
+    note: schemaVersion is not an A2A field; the value "0.3" suggests the author meant A2A 0.3 but the key is wrong.
+  - field: skills
+    observed: absent
+    expected: array of AgentSkill
+    note: No skills declared. The marketplace's /skills surface describes other agents' skills.
+  - field: version
+    observed: absent
+    expected: string
+  - field: url
+    observed: https://botmarket.bot (website root)
+    expected: the A2A service endpoint URL
+    note: >-
+      No A2A JSON-RPC endpoint exists on the card. The non-standard endpoints object names a REST base and an
+      MCP server instead, so the card functions as a pointer to MCP rather than as an A2A interface
+      description. The site's own copy ("MCP + A2A native") is not borne out by the card for the A2A half.
+  - field: endpoints
+    observed: '{rest: https://botmarket.bot/v1, mcp: https://botmarket.bot/mcp}'
+    expected: not an A2A field (1.0.0 uses supportedInterfaces[]; 0.3.0 uses url + additionalInterfaces[])
+  - field: preferredTransport / defaultInputModes / defaultOutputModes / securitySchemes / security / documentationUrl / iconUrl / signatures
+    observed: all absent
+surface_relationship:
+  note: >-
+    BotMarket publishes two live machine surfaces on one host and the agent card is a signpost to both, not a
+    third surface. MCP: six tools at https://botmarket.bot/mcp (search_mcps, search_agents, search_protocols,
+    get_x402_services, list_quests, get_stats), anonymous, rate-limited per IP (see mcp/botmarket-bot-mcp.yml).
+    REST: a documented but UNSPECIFIED /v1 read surface plus POST /v1/submit — llms.txt and ai-plugin.json both
+    advertise an OpenAPI at https://botmarket.bot/openapi.json, which returns a 0-byte 404, and the Swagger UI
+    advertised at /docs-api is an empty SvelteKit shell. There is no A2A endpoint to relate the card to.

@@ -1,0 +1,53 @@
+generated: '2026-09-19'
+method: searched
+source: https://botmarket.bot/llms.txt
+derived_from: null
+docs:
+- https://botmarket.bot/llms.txt
+- https://botmarket.bot/.well-known/mcp/server-card.json
+- https://koalabs.ai/
+versioning:
+  scheme: uri-path
+  current_version: v1 (REST path prefix) / 3.0.0 (MCP serverInfo.version and server card)
+  base_url: https://botmarket.bot/v1
+  policy_published: false
+  note: >-
+    The REST surface is versioned by a /v1 path segment and nothing else is said about it. The MCP server
+    reports version 3.0.0 both in initialize (serverInfo) and in its server card, and speaks MCP protocol
+    version 2025-06-18. The agent card carries schemaVersion "0.3" and no version of its own. No versioning
+    policy, changelog or release notes page exists on botmarket.bot (/changelog and /blog return the SPA
+    shell); koalabs.ai describes the studio's practice as "Rolling release — We ship every day, in public",
+    which is a cadence statement rather than a compatibility commitment.
+deprecation:
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  deprecated_operations: []
+  documented_retirements: []
+  note: >-
+    No deprecation policy, no Sunset/Deprecation headers observed, no OpenAPI to carry deprecated flags. One
+    stale statement was found rather than a retirement: the MCP tool list_quests still says "Each quest pays
+    USDC" while llms.txt, the /quests page and the live /v1/quests data (reward_amount 0) all say quests are
+    experimental with no payouts yet. No Deprecation pointer is emitted.
+status_page:
+  url: null
+  probed:
+  - {url: 'https://botmarket.bot/status', status: 200, note: 'SvelteKit SPA catch-all shell (2,802 bytes), not a status page'}
+  - {url: 'https://status.botmarket.bot/', status: null, note: 'NXDOMAIN — host does not resolve'}
+  live_signal:
+    url: https://botmarket.bot/v1/health/summary
+    status: 200
+    observed: '{"agents_total":3615,"up":699,"down":2916,"stale":0,"avg_latency_ms":470'
+    note: >-
+      This is the health of the 3,615 THIRD-PARTY agents BotMarket indexes (up/down counts and their average
+      latency), not the health of BotMarket's own service. It is not an incident history or an uptime
+      commitment, so no StatusPage pointer is emitted.
+sla:
+  url: null
+  public_uptime_target: null
+  note: No SLA, terms of service or uptime statement is published on botmarket.bot or koalabs.ai (/terms, /privacy, /security all miss on both hosts).
+support:
+  channel: miguel@koalabs.ai
+  source: llms.txt "## Contact" and ai-plugin.json contact_email
+  note: A named person's email at the parent studio; no ticketing, forum or support page. Recorded here, not as a Support pointer, because the pointer types expect a URL and the email is a personal address.

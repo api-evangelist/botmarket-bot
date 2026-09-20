@@ -1,23 +1,145 @@
 aid: botmarket-bot
 name: KOA Labs
-description: 'KOA Labs is a company surfaced via the API Evangelist harvest backlog (source: a2a-registry)
-  and added to the network as a stub for full-pipeline profiling.'
+description: >-
+  KOA Labs is a one-person "solo + AI" software studio in Mexico City (koalabs.ai) that builds open
+  protocols, registries and directories, and BotMarket (botmarket.bot) is its free, non-profit marketplace and
+  registry for AI agents and MCP servers — 115,065 MCP servers, 3,615 A2A-style agents and 25 agent and
+  payment protocols re-gathered hourly from public catalogs (Glama, mcp.so, Smithery, the Official MCP
+  Registry, Hugging Face, Docker, x402 Bazaar) with every record credited to its source. The surface is
+  anonymous and rate-limited per IP (10/s, 100/min, 1,000/h) with no signup and no token: a documented but
+  unspecified REST read surface at https://botmarket.bot/v1 plus POST /v1/submit with a dry_run flag, and a
+  live remote MCP server at https://botmarket.bot/mcp (protocol 2025-06-18, six read-only tools with real
+  inputSchemas). Discovery is published as llms.txt, an OpenAI ai-plugin.json, an OpenSearch description, an
+  MCP server card and an agent card at /.well-known/agent-card.json that is served and owned but not A2A
+  conformant (capabilities is an array, no protocolVersion, no skills, no A2A endpoint). The OpenAPI both
+  llms.txt and ai-plugin.json advertise at /openapi.json is not served (404), so no machine-readable REST
+  contract exists. Optional tipping over x402 / MTP is advertised in a response header; nothing is paywalled.
+image: https://botmarket.bot/favicon.svg
 url: https://raw.githubusercontent.com/api-evangelist/botmarket-bot/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:a2a-registry
-x-tier: stub
-x-tier-reason: harvest
+x-tier: profiled
+x-tier-reason: enrichment pass 2026-09-19 (local-v3; was a2a-registry harvest stub)
 specificationVersion: '0.20'
 created: '2026-09-19'
 modified: '2026-09-19'
 tags:
-- Company
-apis: []
+- Agents
+- MCP
+- A2A
+- Agent Discovery
+- Marketplace
+- Directory
+- Protocols
+- x402
+- Open Data
+- agent-native
+- Non-profit
+- Mexico
+tags_raw:
+- Agents
+- MCP
+- A2A
+- Agent discovery
+- Marketplace
+- Directory
+- Protocols
+- x402
+- Open data
+- Agent-native
+- Non-profit
+- Mexico
+apis:
+- aid: botmarket-bot:botmarket-rest-api
+  name: BotMarket REST API
+  description: >-
+    Anonymous JSON read surface for the BotMarket directory at https://botmarket.bot/v1 — documented in
+    llms.txt rather than in a contract: GET /v1/mcps?q=, /v1/agents, /v1/protocols, /v1/quests, /v1/skills,
+    /v1/rankings, /v1/health/summary, /v1/service/{slug}, /v1/search?q= (the OpenSearch JSON template) and
+    /v1/search/suggest?q=, plus POST /v1/submit to submit an agent card, MCP server or x402 service listing
+    (dry_run: true validates and previews without opening a registry PR). No auth, no token; 10/s, 100/min,
+    1,000/h per IP, signalled as x-ratelimit-limit-* headers; CORS open to any origin; errors in a FastAPI
+    {"detail": ...} envelope. The OpenAPI advertised at https://botmarket.bot/openapi.json returns 404 and
+    the advertised Swagger UI at /docs-api is an empty SPA shell, so the surface is documented but not
+    specified.
+  humanURL: https://botmarket.bot/
+  baseURL: https://botmarket.bot/v1
+  tags:
+  - Agents
+  - MCP
+  - Agent Discovery
+  - Directory
+  - Search
+  properties:
+  - type: Documentation
+    name: llms.txt developer guide (the only published REST documentation)
+    url: https://botmarket.bot/llms.txt
+- aid: botmarket-bot:botmarket-mcp-server
+  name: BotMarket MCP Server
+  description: >-
+    Remote Model Context Protocol server at https://botmarket.bot/mcp (JSON-RPC 2.0 over HTTP, POST only,
+    protocol version 2025-06-18, serverInfo botmarket 3.0.0). initialize, tools/list and tools/call answer
+    anonymously with six read-only tools carrying real inputSchemas — search_mcps, search_agents,
+    search_protocols, get_x402_services, list_quests, get_stats; resources/list and prompts/list are not
+    implemented. Auth is none; the same per-IP rate limit as the REST surface applies; every response
+    advertises optional x402 / MTP tipping (x-payment-optional) and no call returns 402. A provider-authored
+    server card at /.well-known/mcp/server-card.json describes the same server, and the agent card's
+    endpoints.mcp points here.
+  humanURL: https://botmarket.bot/
+  baseURL: https://botmarket.bot/mcp
+  tags:
+  - MCP
+  - agent-native
+  - Agents
+  - Agent Discovery
+  properties:
+  - type: MCPServer
+    url: mcp/botmarket-bot-mcp.yml
+  - type: MCPServer
+    name: BotMarket MCP endpoint (JSON-RPC over HTTP)
+    url: https://botmarket.bot/mcp
+  - type: Documentation
+    url: https://botmarket.bot/llms.txt
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: DomainSecurity
+  url: security/botmarket-bot-domain-security.yml
 - type: Website
   url: https://botmarket.bot/
+- type: Documentation
+  name: llms.txt developer guide
+  url: https://botmarket.bot/llms.txt
+- type: GitHubOrganization
+  name: KOA Labs on GitHub (koalabs-ai — linked from koalabs.ai; holds no BotMarket source)
+  url: https://github.com/koalabs-ai
+- type: AgentCard
+  url: a2a/botmarket-bot-a2a.yml
+- type: MCPServer
+  url: mcp/botmarket-bot-mcp.yml
+- type: WellKnown
+  url: well-known/botmarket-bot-well-known.yml
+- type: LLMsTxt
+  url: llms/botmarket-bot-llms.txt
+- type: Authentication
+  url: authentication/botmarket-bot-authentication.yml
+- type: Conventions
+  url: conventions/botmarket-bot-conventions.yml
+- type: ErrorCatalog
+  url: errors/botmarket-bot-problem-types.yml
+- type: RateLimits
+  url: rate-limits/botmarket-bot-rate-limits.yml
+- type: Plans
+  url: plans/botmarket-bot-plans-pricing.yml
+- type: Conformance
+  url: conformance/botmarket-bot-conformance.yml
+- type: Lifecycle
+  url: lifecycle/botmarket-bot-lifecycle.yml
+x-enrichment:
+  date: '2026-09-19'
+  status: enriched
+  artifacts_added: 18
+  pass: local-v3

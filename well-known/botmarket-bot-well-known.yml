@@ -1,0 +1,183 @@
+generated: '2026-09-19'
+method: probed
+source: >-
+  Live GET probes of the named /.well-known/* path list on botmarket.bot (website, REST base and MCP server
+  host — one origin), www.botmarket.bot, koalabs.ai (the provider's corporate host named in the agent card)
+  and www.koalabs.ai, 2026-09-19. Every row below is a request that was actually issued; every status is the
+  one returned.
+summary:
+  hosts_probed: 4
+  paths_probed: 57
+  documents_served: 3
+  hit_count: 3
+  path_echo_control: passed
+  note: >-
+    botmarket.bot serves three real well-known documents: the A2A agent card at /.well-known/agent-card.json
+    (captured and graded in a2a/), an OpenAI-plugin manifest at /.well-known/ai-plugin.json, and an MCP server
+    card at the non-registered path /.well-known/mcp/server-card.json. Every other named path returns the
+    backend's real JSON 404 ({"detail":"Not Found"}, 22 bytes, application/json) — not an SPA shell — and a
+    negative-control path that cannot exist also 404s, so the 200s are served documents. The two non-well-known
+    APIs.json paths (/apis.json, /apis.yml) and /security.txt fall through to the SvelteKit SPA catch-all
+    (200, text/html, 2,802 bytes — the same shell every unknown page returns) and are recorded as
+    present-but-not-a-document. No security.txt, no OAuth/OIDC discovery, no RFC 9727 API catalog, no
+    APIs.json, no AAuth resource, no UCP/ACP manifest. www.botmarket.bot returns Cloudflare 525 (origin SSL
+    handshake failed) for every path. koalabs.ai returns a JSON 404 for every path; www.koalabs.ai 301s every
+    path to koalabs.ai. The MCP server host is the apex itself, so the RFC 9728 protected-resource probe on the
+    MCP host is the botmarket.bot row below (404).
+hosts:
+- host: botmarket.bot
+  role: Website, REST base (https://botmarket.bot/v1), MCP server (https://botmarket.bot/mcp) and agent-card host — one origin
+  documents:
+  - path: /.well-known/agent-card.json
+    status: 200
+    content_type: application/json
+    bytes: 342
+    file: ../a2a/botmarket-bot-agent-card.json
+    standard: A2A Agent Card
+    note: Saved verbatim under a2a/ and graded flavored in a2a/botmarket-bot-a2a.yml (capabilities is an array, no protocolVersion, no skills).
+  - path: /.well-known/agent.json
+    status: 404
+    note: Legacy pre-0.3 agent-card path. Not served.
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    content_type: application/json
+    bytes: 499
+    file: botmarket-bot-ai-plugin.json
+    standard: OpenAI plugin manifest (schema_version v1)
+    note: >-
+      A real manifest: auth {type: none}, api {type: openapi, url: https://botmarket.bot/openapi.json},
+      contact_email miguel@koalabs.ai, legal_info_url https://botmarket.bot/about. The OpenAPI it points at
+      returns a 0-byte 404, so the manifest's api link is dead.
+  - path: /.well-known/mcp/server-card.json
+    status: 200
+    content_type: application/json
+    bytes: 383
+    file: botmarket-bot-mcp-server-card.json
+    standard: none (provider-defined MCP server card; not a registered well-known URI)
+    note: Probed because llms.txt and the site footer link it. Agrees with the live /mcp server on name, version 3.0.0, endpoint, auth none, tools and rate limits.
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /security.txt
+    status: 200
+    content_type: text/html
+    bytes: 2802
+    note: SvelteKit SPA catch-all shell, not a security.txt; not saved. Treated as a miss.
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    note: RFC 9728 probe on the MCP server host (the apex). Not served — consistent with the server needing no auth.
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/api-catalog.json
+    status: 404
+  - path: /.well-known/ucp.json
+    status: 404
+  - path: /.well-known/acp.json
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+  - path: /.well-known/apis.json
+    status: 404
+  - path: /apis.json
+    status: 200
+    content_type: text/html
+    bytes: 2802
+    note: SPA catch-all shell, not an APIs.json (no apis or specificationVersion); not saved. Treated as a miss.
+  - path: /apis.yml
+    status: 200
+    content_type: text/html
+    bytes: 2802
+    note: SPA catch-all shell; not saved. Treated as a miss.
+  - path: /.well-known/mcp.json
+    status: 404
+  - path: /.well-known/apievangelist-negative-control-7f3a9c.json
+    status: 404
+    note: Negative control — a path that cannot exist. Its 404 proves the 200s above are served documents, not a catch-all.
+  also_probed:
+  - {path: /llms.txt, status: 200, content_type: text/plain, bytes: 2455, file: ../llms/botmarket-bot-llms.txt}
+  - {path: /opensearch.xml, status: 200, content_type: application/opensearchdescription+xml, bytes: 415, note: 'OpenSearch 1.1 description with an HTML and a JSON (https://botmarket.bot/v1/search?q={searchTerms}) template.'}
+  - {path: /robots.txt, status: 200, content_type: text/plain, bytes: 275, note: 'Allow: / for *, GPTBot, ClaudeBot, anthropic-ai, PerplexityBot, Google-Extended; Sitemap: https://botmarket.bot/sitemap.xml.'}
+  - {path: /openapi.json, status: 404, bytes: 0, note: 'Advertised by llms.txt and ai-plugin.json; not served.'}
+- host: www.botmarket.bot
+  role: www alias
+  documents:
+  - path: /.well-known/agent-card.json
+    status: 525
+    note: Cloudflare 525 (origin SSL handshake failed). Every path on this host, including /, fails the same way; http:// 308s to https:// and then 525s.
+  - path: /.well-known/security.txt
+    status: 525
+  - path: /.well-known/openid-configuration
+    status: 525
+  - path: /.well-known/oauth-authorization-server
+    status: 525
+  - path: /.well-known/oauth-protected-resource
+    status: 525
+  - path: /.well-known/api-catalog
+    status: 525
+  - path: /.well-known/ai-plugin.json
+    status: 525
+- host: koalabs.ai
+  role: Provider corporate host (agent card provider.url)
+  documents:
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/api-catalog.json
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/ucp.json
+    status: 404
+  - path: /.well-known/acp.json
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+  - path: /.well-known/apis.json
+    status: 404
+  - path: /apis.json
+    status: 404
+  - path: /apis.yml
+    status: 404
+  - path: /.well-known/mcp/server-card.json
+    status: 404
+  - path: /llms.txt
+    status: 404
+  note: Every miss is the same JSON 404 ({"detail":"Not Found"}) the botmarket.bot backend returns — the same stack. www.koalabs.ai 301s to koalabs.ai.
+- host: www.koalabs.ai
+  role: www alias
+  documents:
+  - path: /.well-known/agent-card.json
+    status: 301
+    note: Redirects to https://koalabs.ai/ (which then 404s the path). Same for every path probed.
+  - path: /.well-known/security.txt
+    status: 301
+  - path: /.well-known/openid-configuration
+    status: 301
+  - path: /.well-known/oauth-authorization-server
+    status: 301
+  - path: /.well-known/oauth-protected-resource
+    status: 301
+  - path: /.well-known/api-catalog
+    status: 301
+  - path: /.well-known/ai-plugin.json
+    status: 301
+  - path: /.well-known/apis.json
+    status: 301
+  - path: /apis.json
+    status: 301

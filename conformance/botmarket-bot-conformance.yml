@@ -1,0 +1,107 @@
+generated: '2026-09-19'
+method: searched
+source: https://botmarket.bot/mcp
+derived_from: null
+docs:
+- https://botmarket.bot/llms.txt
+- https://botmarket.bot/.well-known/agent-card.json
+- https://botmarket.bot/opensearch.xml
+- https://botmarket.bot/robots.txt
+summary: >-
+  BotMarket's conformance profile is the agent-discovery protocol stack: a live MCP server at protocol version
+  2025-06-18 speaking JSON-RPC 2.0, an A2A-style agent card at the canonical well-known path that is NOT
+  conformant to the A2A card schema (graded flavored), an OpenSearch 1.1 description document, an OpenAI
+  plugin manifest, and a robots.txt that explicitly admits every named AI crawler. It declares no OAuth/OIDC,
+  no RFC 9457 problem details, no RFC 9116 security.txt, no RFC 9727 API catalog, no RFC 8594 sunset
+  signalling and no OpenAPI. x402 / MTP payment is advertised as optional in a response header but no 402
+  challenge exists to verify it against. No certification or compliance program is published, so no
+  Compliance pointer is emitted.
+standards:
+- id: mcp
+  name: Model Context Protocol
+  version: '2025-06-18'
+  conforms: true
+  evidence: 'POST https://botmarket.bot/mcp initialize returned protocolVersion "2025-06-18", serverInfo {botmarket, 3.0.0}, capabilities.tools.listChanged false; tools/list returned 6 tools with inputSchema; tools/call get_stats returned content[] plus structuredContent. See mcp/botmarket-bot-mcp.yml.'
+  domain_standard_signature: true
+  note: The provider's own market is MCP/agent discovery, and MCP is the contract it actually serves; the tools/list inputSchemas are the machine-readable contract in place of an OpenAPI.
+- id: json-rpc-2.0
+  conforms: true
+  evidence: '/mcp answers {"jsonrpc":"2.0", ...} with standard -32601 Method not found for unimplemented methods and -32700 Parse error for malformed bodies.'
+- id: a2a-agent-card
+  name: A2A Agent Card
+  version: null
+  conforms: false
+  evidence: >-
+    https://botmarket.bot/.well-known/agent-card.json is served (200, application/json) at the canonical
+    RFC 8615 path but fails every A2A 1.0.0 hard check: capabilities is an array, protocolVersion is absent
+    (a non-A2A schemaVersion "0.3" sits in its place), skills is absent, and the card names no A2A endpoint.
+    Graded flavored in a2a/botmarket-bot-a2a.yml.
+  note: Present and owned, not conformant. The site's "MCP + A2A native" claim holds for MCP only.
+- id: opensearch-1.1
+  name: OpenSearch description document
+  version: '1.1'
+  conforms: true
+  evidence: 'https://botmarket.bot/opensearch.xml (200, application/opensearchdescription+xml) — root OpenSearchDescription with xmlns http://a9.com/-/spec/opensearch/1.1/, ShortName BotMarket, an HTML template (/mcps?q={searchTerms}) and a JSON template (/v1/search?q={searchTerms}); the JSON template answered 200 with results.'
+  domain_standard_signature: true
+  note: The one long-standing search-discovery standard, declared by the document itself with the spec namespace, and pointing at a live JSON endpoint. Recorded as a domain-standard signature for a search directory.
+- id: openai-plugin-manifest
+  name: OpenAI plugin manifest (ai-plugin.json)
+  version: v1
+  conforms: true
+  verification: partial
+  evidence: 'https://botmarket.bot/.well-known/ai-plugin.json (200) — schema_version v1, name_for_model botmarket, auth {type: none}, api {type: openapi, url: https://botmarket.bot/openapi.json}.'
+  note: The manifest is well-formed but its api.url returns a 0-byte 404, so a plugin host could load the manifest and then fail to load the contract.
+- id: llms-txt
+  name: llms.txt
+  conforms: true
+  evidence: 'https://botmarket.bot/llms.txt (200, text/plain, 2,455 bytes) — H1 name + URL, sections for stats, consumption, rate limits, discovery, clients, quests and contact. Saved verbatim to llms/botmarket-bot-llms.txt.'
+- id: robots-txt-ai-crawlers
+  name: robots.txt AI-crawler policy
+  conforms: true
+  evidence: 'https://botmarket.bot/robots.txt — "Allow: /" for *, and named Allow rules for GPTBot, ClaudeBot, anthropic-ai, PerplexityBot and Google-Extended; Sitemap declared.'
+  note: An explicit published consent signal for AI crawlers, in the opposite direction from most of the catalog.
+- id: x402
+  name: x402 HTTP payment protocol
+  conforms: null
+  verification: declared-only
+  evidence: 'Every /v1 and /mcp response carries x-payment-optional: x402,mtp and x-tip-url: https://botmarket.bot/payments; koalabs.ai says "tipping over x402 / MTP". No request returned HTTP 402 and no PaymentRequirements payload was observed, because tipping is optional and nothing is gated.'
+  note: Recorded as declared, not verified — there is no gated route to exercise without spending money.
+- id: mtp
+  name: MTP (Machine Tree Protocol)
+  conforms: null
+  verification: declared-only
+  evidence: 'Named alongside x402 in the x-payment-optional header and in llms.txt quests ("Ceiba Replication (MTP / Machine Tree Protocol)"). No MTP endpoint or specification was found on this host.'
+- id: cors
+  conforms: true
+  evidence: 'OPTIONS https://botmarket.bot/v1/mcps returned access-control-allow-origin: *, access-control-allow-methods: GET, POST, HEAD, OPTIONS, access-control-max-age: 600.'
+- id: openapi
+  conforms: false
+  evidence: 'https://botmarket.bot/openapi.json returns 404 with a 0-byte body although llms.txt ("## Discovery") and ai-plugin.json (api.url) both advertise it; /docs-api (advertised Swagger UI) returns the SvelteKit SPA shell; /docs and /redoc return 404. No contract at /v1/openapi.json, /openapi.yaml, /swagger.json or /api-docs either.'
+  note: The provider says it publishes an OpenAPI and does not. This is the single most useful fix available to it.
+- id: oauth2
+  conforms: false
+  evidence: No auth of any kind; /.well-known/oauth-authorization-server and /.well-known/oauth-protected-resource both 404.
+- id: oidc
+  conforms: false
+  evidence: /.well-known/openid-configuration 404.
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: 'Errors use a FastAPI {"detail": ...} envelope (404/405/422 observed); no application/problem+json, no type/title/status/instance.'
+- id: rfc9116-security-txt
+  conforms: false
+  evidence: /.well-known/security.txt 404; /security.txt returns the SPA shell.
+- id: rfc9727-api-catalog
+  conforms: false
+  evidence: /.well-known/api-catalog 404.
+- id: apis-json
+  conforms: false
+  evidence: /.well-known/apis.json 404; /apis.json and /apis.yml return the SPA shell.
+- id: rfc8594-sunset
+  conforms: false
+  evidence: No Sunset or Deprecation header observed; no deprecation policy published.
+- id: idempotency-key
+  conforms: false
+  evidence: No idempotency mechanism documented for POST /v1/submit, the only write.
+- id: rfc9728-protected-resource-metadata
+  conforms: false
+  evidence: /.well-known/oauth-protected-resource 404 on the MCP host (botmarket.bot). Consistent with an unauthenticated server.

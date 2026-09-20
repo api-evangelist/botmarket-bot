@@ -1,0 +1,36 @@
+generated: '2026-09-19'
+method: searched
+source: https://botmarket.bot/llms.txt
+docs:
+- https://botmarket.bot/llms.txt
+- https://botmarket.bot/.well-known/mcp/server-card.json
+- https://botmarket.bot/.well-known/ai-plugin.json
+summary:
+  types: []
+  api_key_in: []
+  oauth2_flows: []
+  bearer: false
+  credential_classes: 0
+  headline: >-
+    No authentication of any kind. BotMarket's REST surface (/v1), MCP server (/mcp) and submission endpoint
+    (POST /v1/submit) are anonymous by design — "Free for bots. No signup." and "10 req/sec, 100/min,
+    1000/hour per IP. Free. No token required." (llms.txt). The MCP server card declares "auth":"none", the
+    ai-plugin manifest declares auth {type: none}, and every live probe (initialize, tools/list, tools/call
+    get_stats, GET /v1/mcps, /v1/agents, /v1/protocols, /v1/quests) succeeded with no credential. Access
+    control is per-IP rate limiting, not identity. No OAuth, no OIDC, no API keys, no bearer tokens, and no
+    discovery documents on the host (/.well-known/openid-configuration, /oauth-authorization-server and
+    /oauth-protected-resource all 404).
+schemes: []
+payment_signals:
+  header: 'x-payment-optional: x402,mtp'
+  tip_url: https://botmarket.bot/payments
+  observed_on: every /v1 and /mcp response
+  note: >-
+    Optional agent-native tipping (x402 / MTP) advertised in a response header. It is not an auth scheme and
+    not a gate — no request returned 402 — so it is recorded here as a signal an agent may see, not as a
+    credential class.
+openapi: null
+note: >-
+  No OpenAPI exists to derive from (https://botmarket.bot/openapi.json is a 0-byte 404 despite being advertised
+  by llms.txt and ai-plugin.json), so derive-authentication.py had nothing to read; this profile is written
+  from the provider's published text and live probes.

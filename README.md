@@ -64,5 +64,11 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-KOA Labs is a company surfaced via the API Evangelist harvest backlog (source: a2a-registry) and added to the network as a stub for full-pipeline profiling.
-- https://botmarket.bot/
+KOA Labs is a one-person "solo + AI" software studio in Mexico City (koalabs.ai). BotMarket (botmarket.bot) is its free, non-profit marketplace and registry for AI agents and MCP servers, re-gathered hourly from public catalogs with every record credited to its source. The surface is anonymous and rate-limited per IP: a documented but unspecified REST read surface at https://botmarket.bot/v1 (plus POST /v1/submit with a dry-run flag) and a live remote MCP server at https://botmarket.bot/mcp with six read-only tools. Discovery is published as llms.txt, ai-plugin.json, an OpenSearch description, an MCP server card and an agent card at /.well-known/agent-card.json that is served but not A2A conformant. The OpenAPI that llms.txt and ai-plugin.json advertise at /openapi.json is not served.
+
+- Website: https://botmarket.bot/
+- Developer guide (llms.txt): https://botmarket.bot/llms.txt
+- MCP server: https://botmarket.bot/mcp
+- Agent card: https://botmarket.bot/.well-known/agent-card.json
+- Studio: https://koalabs.ai/
+- Profiled 2026-09-19 from the provider's public surface; first surfaced through a2aregistry.org.

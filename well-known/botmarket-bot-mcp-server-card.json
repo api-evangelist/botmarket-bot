@@ -1,0 +1,1 @@
+{"name":"botmarket","version":"3.0.0","description":"BotMarket MCP server — search agents, MCPs, protocols, payment services, quests.","transport":"json-rpc-http","endpoint":"https://botmarket.bot/mcp","auth":"none","rateLimit":{"perSecond":10,"perMinute":100,"perHour":1000},"tools":["search_mcps","search_agents","search_protocols","get_x402_services","list_quests","get_stats"]}

@@ -1,0 +1,62 @@
+generated: '2026-09-19'
+method: searched
+source: https://botmarket.bot/llms.txt
+docs:
+- https://botmarket.bot/llms.txt
+- https://botmarket.bot/.well-known/mcp/server-card.json
+- https://botmarket.bot/
+limit_count: 3
+summary: >-
+  BotMarket publishes one per-IP limit at three windows — 10 requests per second, 100 per minute, 1,000 per
+  hour — for the whole surface (REST /v1 and MCP /mcp alike), with no token and no tier. The same numbers are
+  stated in llms.txt ("## Rate limits"), on the homepage ("10/s · 100/min · 1000/h · no signup, no token") and
+  in the MCP server card (rateLimit {perSecond: 10, perMinute: 100, perHour: 1000}), and every live response
+  carries them as headers: x-ratelimit-limit-second: 10, x-ratelimit-limit-minute: 100,
+  x-ratelimit-limit-hour: 1000. No remaining/reset headers are sent, no Retry-After was seen, and the status
+  code on exhaustion is not documented and was not provoked.
+rate_limits:
+- name: Requests per second
+  scope: per-ip
+  limit: 10
+  window: 1s
+  metric: request
+  burst: null
+  applies_to: [GET /v1/*, POST /v1/submit, POST /mcp]
+  header: 'x-ratelimit-limit-second: 10'
+  source: llms.txt "10 req/sec, 100/min, 1000/hour per IP"; observed header on every /v1 and /mcp response 2026-09-19
+- name: Requests per minute
+  scope: per-ip
+  limit: 100
+  window: 1m
+  metric: request
+  burst: null
+  applies_to: [GET /v1/*, POST /v1/submit, POST /mcp]
+  header: 'x-ratelimit-limit-minute: 100'
+  source: llms.txt; observed header 2026-09-19
+- name: Requests per hour
+  scope: per-ip
+  limit: 1000
+  window: 1h
+  metric: request
+  burst: null
+  applies_to: [GET /v1/*, POST /v1/submit, POST /mcp]
+  header: 'x-ratelimit-limit-hour: 1000'
+  source: llms.txt; observed header 2026-09-19
+headers:
+  observed:
+  - x-ratelimit-limit-second
+  - x-ratelimit-limit-minute
+  - x-ratelimit-limit-hour
+  not_observed:
+  - x-ratelimit-remaining-*
+  - x-ratelimit-reset-*
+  - RateLimit / RateLimit-Policy (IETF draft)
+  - Retry-After
+  note: Static limit headers only; an agent can read the ceiling but not its remaining budget.
+exhaustion:
+  status: null
+  headers: []
+  note: Not documented in llms.txt or the server card and not provoked by this pass (the limits were respected).
+page_size_limits:
+- {surface: 'MCP search_mcps / search_agents', limit: 'limit max 100 (default 20)', source: mcp/botmarket-bot-mcp-tools.json inputSchema}
+- {surface: 'MCP get_x402_services', limit: 'limit max 200 (default 50)', source: mcp/botmarket-bot-mcp-tools.json inputSchema}
