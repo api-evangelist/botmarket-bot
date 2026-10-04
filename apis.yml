@@ -33,7 +33,7 @@ tags:
 - Protocol
 - x402
 - Open Data
-- agent-native
+- Agent-Native
 - Non-Profit
 - Mexico
 tags_raw:
@@ -49,6 +49,7 @@ tags_raw:
 - Agent-native
 - Non-profit
 - Mexico
+- agent-native
 apis:
 - aid: botmarket-bot:botmarket-rest-api
   name: BotMarket REST API
@@ -88,6 +89,11 @@ apis:
   humanURL: https://botmarket.bot/
   baseURL: https://botmarket.bot/mcp
   tags:
+  - MCP
+  - Agent-Native
+  - Agents
+  - Agent Discovery
+  tags_raw:
   - MCP
   - agent-native
   - Agents
