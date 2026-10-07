@@ -112,6 +112,8 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Pricing
+  url: https://botmarket.bot/llms.txt
 - url: https://botmarket.bot/blog/
   type: Blog
 - type: DomainSecurity
