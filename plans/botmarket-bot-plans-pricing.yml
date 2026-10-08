@@ -34,3 +34,16 @@ tipping:
   header: 'x-payment-optional: x402,mtp'
   url: https://botmarket.bot/payments
   note: Advertised in response headers and on koalabs.ai; no 402 challenge was ever returned and no price is stated anywhere for a tip.
+x-canonical:
+  generated: '2026-10-08'
+  vocabulary: all/0-working/economics/plans-canonical.yml
+  models:
+  - free
+  units: []
+  plans:
+  - name: Free (anonymous)
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods: []
