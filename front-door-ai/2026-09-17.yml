@@ -1,0 +1,33 @@
+# Front Door AI Index — botmarket-bot — 2026-09-17
+# AI vocabulary counted on the provider's root page. Generated; do not edit.
+# `score` is null unless ownership is `own` — see front_door_ai.py.
+front_door_ai:
+  slug: botmarket-bot
+  lexicon_version: '1.0'
+  probed_at: '2026-09-25'
+  host: botmarket.bot
+  final_host: botmarket.bot
+  ownership: own
+  owner: botmarket-bot
+  shares_host_with: null
+  inherited_from: null
+  alias_of: null
+  verdict: scored
+  score: 16
+  band: 5
+  band_label: prominent
+  host_score: 16
+  density: 55.94
+  words: 286
+  tiers:
+    agentic: 12
+    core: 3
+    model: 1
+  ambiguous: 13
+  top_terms:
+    agent: 13
+    MCP: 8
+    AI agent: 3
+    AI: 3
+    Hugging Face: 1
+    llms.txt: 1
